@@ -1,0 +1,57 @@
+
+
+a clickabe cookie
+
+click ber mouse click (mouse_clicker)
+Click ber second or part of the second (auto_clicker)
+
+upgrades >>>
+(each upgrade cost x amoun of cookies
+&
+each upgrade increase the click power per x second)
+
+
+auto_clicker >>>
+(
+    each auto_clicker cost x amoun of cookies
+    each item in the auto clicker have a power (x amount of cookies per second)
+    each auto clicker have an animation to know how many auto clicker are in the game
+
+    the auto clickers are "increase the price with * 2 after buying for each auto clicker"
+    hand (cost 10 cookies)( upgrades are five for each we add a ring to the hand)
+    a mom (cost 30 cookies)( upgrades are 
+            new oven for mama/ 
+            better ingradiands / 
+            make mama go to sleep so she can get better at making cookies/ 
+            mama have a faster mixer so she can make more cookies 
+            mama gat a secret cookie recipe)
+    a grandma 
+
+    a kitchen
+    a chif 
+    a restaurant
+    a bakery
+    a factory
+    a city
+    a land (cookie land)
+
+)
+
+a spacile events
+
+(
+change cookie color/ shape per buying for the auto_clicker
+make a random cookie apare for ether boost, or extra amount of cookies (like a big number) or maybe extra auto_clicker for free
+)
+
+
+so the variables are 
+
+cookie: 0
+
+mouse_cliker_power: 
+
+auto_clicker_power: 
+
+cookie_amount_desplay:
+
