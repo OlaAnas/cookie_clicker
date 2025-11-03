@@ -1,47 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            margin: 100px;
-            font-size: larger;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cookie Game</title>
+  <style>
+    body { background:#000; color:#fff; margin:100px; font-size:larger; }
+    #shop { display:grid; gap:12px; margin-top:24px; }
+    .shop-item { padding:12px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; cursor:pointer; }
+    .shop-item:disabled { opacity:0.5; cursor:not-allowed; }
+    .name { font-weight:700; }
+    .cost, .lvl { opacity:0.85; font-size:0.95em; }
+    button { font-size:1rem; }
+  </style>
 </head>
 <body>
 
-    <div>
-        <button id="cookie_button">Click the cookie</button>
-        <p>Total Cookies: <span id="total_cookies">0</span></p>
-        <p>Cookies per Click: <span id="cookie_per_click">1</span></p>
-    </div>
-    <div>
-        <button id="upgrade_button">Upgrade</button>
-        <p>Cost: <span id="upgrade_cost">10</span></p>
-    </div>
+  <div>
+    <button id="cookie_button">🍪 Click the cookie</button>
+    <p>Total Cookies: <span id="total_cookies">0</span></p>
+    <p>Cookies per Click: <span id="cookie_per_click">1</span></p>
+    <p>Cookies per Second: <span id="cookie_per_second">0</span></p>
+  </div>
 
-    <div>
-        <button id="auto_button">Auto Click</button>
-        <p>Cost: <span id="auto_cost">50</span></p>
-        <p> amount of the items <span id= "auto_units">0</span></p>
-        <p>Cookies per Second: <span id="cookie_per_second">0</span></p>
+<section class="shop-section">
+  <h2>Upgrades</h2>
+  <div id="shop-upgrades" class="shop-grid"></div>
+</section>
 
-    </div>
+<section class="shop-section">
+  <h2>Auto-Clickers</h2>
+  <div id="shop-autos" class="shop-grid"></div>
+</section>
 
-    <div id="shop"></div>
+  <div style="margin-top:24px">
+    <button id="reset_btn">Reset Game</button>
+  </div>
 
-
-    <div>
-        <button onclick="resetGame()">Reset Game</button>
-    </div>
-    
-    
-
-    <script src="main.js"></script>
+  <!-- IMPORTANT: use modules -->
+  <script type="module" src="js/main.js"></script>
+  <!-- If you prefer inline onclick, expose resetGame globally in main.js (see note below) -->
 </body>
 </html>
