@@ -25,7 +25,7 @@ setInterval(() => {
   updateUI();
 }, 1000);
 
-setInterval(saveGame, 5000);
+setInterval(saveGame, 1000);
 
 // wire reset button
 document.getElementById("reset_btn").onclick = () => {
