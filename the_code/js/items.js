@@ -1,14 +1,16 @@
 export class ShopItem {
-  constructor({ id, name, baseCost, costMul = 1.5 }) {
+  constructor({ id, name, baseCost, costMul = 1.5, icon }) {
     this.id = id;
     this.name = name;
     this.baseCost = baseCost;
     this.costMul = costMul;
     this.level = 0;
+    // If you don’t pass an icon, it will try img/<id>.png
+    this.icon = icon || `img/${id}.png`;
   }
   get cost() { return Math.floor(this.baseCost * Math.pow(this.costMul, this.level)); }
   canAfford(cookies) { return cookies >= this.cost; }
-  applyEffect(_game) {} // overridden by subclasses
+  applyEffect(_game) {}
   buy(game) {
     if (!this.canAfford(game.cookie)) return false;
     game.cookie -= this.cost;

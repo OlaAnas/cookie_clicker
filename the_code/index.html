@@ -12,12 +12,34 @@
     .name { font-weight:700; }
     .cost, .lvl { opacity:0.85; font-size:0.95em; }
     button { font-size:1rem; }
+
+    .shop-grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .shop-item { padding:12px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; cursor:pointer; text-align:left; }
+    .shop-item:disabled { opacity:.5; cursor:not-allowed; }
+
+    .row { display:flex; align-items:center; gap:10px; }
+    .icon { width:42px; height:42px; object-fit:cover; border-radius:8px; border:1px solid #2a2a2a; background:#191919; }
+    .meta-wrap .name { font-weight:700; }
+    .cost, .lvl, .effect { opacity:.85; font-size:.95em; }
+    #cookie_button {
+  border:none; background:transparent; padding:0; cursor:pointer;
+}
+#cookie_img {
+  width:160px; height:160px; object-fit:contain; display:block;
+  transition: transform .06s ease;
+  user-select:none; -webkit-user-drag:none;
+}
+#cookie_button:active #cookie_img { transform: scale(0.95); }
+/* optional hover pulse */
+#cookie_button:hover #cookie_img { transform: scale(1.03); }
   </style>
 </head>
 <body>
 
   <div>
-    <button id="cookie_button">🍪 Click the cookie</button>
+    <button id="cookie_button" aria-label="Click the cookie">
+    <img id="cookie_img" src="img/cookie.png" alt="Cookie" />
+    </button>
     <p>Total Cookies: <span id="total_cookies">0</span></p>
     <p>Cookies per Click: <span id="cookie_per_click">1</span></p>
     <p>Cookies per Second: <span id="cookie_per_second">0</span></p>
