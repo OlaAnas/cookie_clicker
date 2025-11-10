@@ -1,18 +1,30 @@
 import { game, shortNum } from "./state.js";
 import { renderShop } from "./shop.js";
 
-const total_cookies = document.getElementById("total_cookies");
-const per_click = document.getElementById("cookie_per_click");
-const per_second = document.getElementById("cookie_per_second");
+// Cache references to key DOM elements once
+const totalCookiesEl = document.getElementById("total_cookies");
+const perClickEl     = document.getElementById("cookie_per_click");
+const perSecondEl    = document.getElementById("cookie_per_second");
+const cookieBtn      = document.getElementById("cookie_button");
 
+/**
+ * Refresh all on-screen counters and shop items.
+ * Called whenever game state changes (click, upgrade, auto income, etc.).
+ */
 export function updateUI() {
-  total_cookies.textContent = shortNum(game.cookie);
-  per_click.textContent = shortNum(game.cookie_per_click);
-  per_second.textContent = shortNum(game.cookie_per_second);
+  if (totalCookiesEl) totalCookiesEl.textContent = shortNum(game.cookie);
+  if (perClickEl)     perClickEl.textContent     = shortNum(game.cookie_per_click);
+  if (perSecondEl)    perSecondEl.textContent    = shortNum(game.cookie_per_second);
+
+  // Also re-render the shop (so costs/availability update)
   renderShop();
 }
 
+/**
+ * Connect the main cookie button to the click handler from main.js.
+ * @param {Function} onClick - Function to run when cookie is clicked.
+ */
 export function wireCookieButton(onClick) {
-  const btn = document.getElementById("cookie_button");
-  btn.onclick = onClick;
+  if (!cookieBtn) return; // defensive check
+  cookieBtn.addEventListener("click", onClick);
 }

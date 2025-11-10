@@ -1,73 +1,113 @@
 export class ShopItem {
-  constructor({ id, name, baseCost, costMul = 1.5, icon }) {
-    this.id = id;
-    this.name = name;
-    this.baseCost = baseCost;
-    this.costMul = costMul;
-    this.level = 0;
-    // If you don’t pass an icon, it will try img/<id>.png
-    this.icon = icon || `img/${id}.png`;
+  /**
+   * @param {Object} opts - Configuration for the item.
+   * @param {string} opts.id - Unique ID for the item (e.g., "click1", "auto3").
+   * @param {string} opts.name - Display name.
+   * @param {number} opts.baseCost - Starting cost for the item.
+   * @param {number} [opts.costMul=1.5] - Cost multiplier per level.
+   * @param {string} [opts.icon] - Optional image path for the item card.
+   */
+  constructor(opts) {
+    this.id = opts.id;
+    this.name = opts.name;
+    this.baseCost = opts.baseCost;
+    this.costMul = opts.costMul === undefined ? 1.5 : opts.costMul;
+    this.level = 0; // “Owned” amount in the UI
+    // If no icon provided, try to load one by convention: img/<id>.png
+    this.icon = opts.icon || `img/${opts.id}.png`;
   }
-  get cost() { return Math.floor(this.baseCost * Math.pow(this.costMul, this.level)); }
-  canAfford(cookies) { return cookies >= this.cost; }
-  applyEffect(_game) {}
+
+  /**
+   * Current cost based on level (owned amount).
+   * Example: baseCost * costMul^level, rounded down.
+   */
+  get cost() {
+    const scaled = this.baseCost * Math.pow(this.costMul, this.level);
+    return Math.floor(scaled);
+  }
+
+  /** Whether the player can afford to buy one more. */
+  canAfford(currentCookies) {
+    return currentCookies >= this.cost;
+  }
+
+  /**
+   * Apply this item's effect once (for one level).
+   * Subclasses override this.
+   */
+  applyEffect(_game) {
+    // no-op in base class
+  }
+
+  /**
+   * Attempt to buy one unit of this item.
+   * Decreases cookies by the current cost, increments level,
+   * and applies the item's effect once.
+   */
   buy(game) {
-    if (!this.canAfford(game.cookie)) return false;
+    if (!this.canAfford(game.cookie)) {
+      return false;
+    }
+
     game.cookie -= this.cost;
     this.level += 1;
+
+    // Apply a single level of effect now.
     this.applyEffect(game);
+
     return true;
   }
 }
 
+/**
+ * ClickUpgrade: increases cookies per click by a fixed amount per level.
+ */
 export class ClickUpgrade extends ShopItem {
-  constructor(opts) { super(opts); this.addPerClick = opts.addPerClick; }
-  applyEffect(game) { game.cookie_per_click += this.addPerClick; }
-}
-
-export class AutoItem extends ShopItem {
-  constructor(opts) { super(opts); this.addPerSecond = opts.addPerSecond; }
-  applyEffect(game) { game.cookie_per_second += this.addPerSecond; }
-}
-
-// After loading levels, rebuild derived stats from items:
-export function recomputeFromItems(shop, game) {
-  game.cookie_per_click = 1;
-  game.cookie_per_second = 0;
-  shop.forEach(item => { for (let k = 0; k < item.level; k++) item.applyEffect(game); });
-}
-
-// This goes below your ClickUpgrade and AutoItem classes in items.js
-export class GlobalMultiplierUpgrade extends ShopItem {
+  /**
+   * @param {Object} opts
+   * @param {number} opts.addPerClick - Amount added to CPC per level.
+   */
   constructor(opts) {
     super(opts);
-    this.clickMul = opts.clickMul ?? 1; // how much to multiply click power (e.g., 1.5 = +50%)
-    this.cpsMul = opts.cpsMul ?? 1;     // how much to multiply cookies per second
-    this.owned = false;                 // you can buy it only once
-  }
-
-  get cost() {
-    return this.baseCost;               // cost never increases
+    this.addPerClick = opts.addPerClick;
   }
 
   applyEffect(game) {
-    // only apply once
-    if (this.owned) return;
+    game.cookie_per_click += this.addPerClick;
+  }
+}
 
-    if (this.clickMul !== 1)
-      game.cookie_per_click *= this.clickMul;
-
-    if (this.cpsMul !== 1)
-      game.cookie_per_second *= this.cpsMul;
-
-    this.owned = true;
+/**
+ * AutoItem: increases cookies per second by a fixed amount per level.
+ */
+export class AutoItem extends ShopItem {
+  /**
+   * @param {Object} opts
+   * @param {number} opts.addPerSecond - Amount added to CPS per level.
+   */
+  constructor(opts) {
+    super(opts);
+    this.addPerSecond = opts.addPerSecond;
   }
 
-  buy(game) {
-    if (this.owned) return false;               // already bought
-    if (!this.canAfford(game.cookie)) return false; // not enough cookies
-    game.cookie -= this.baseCost;               // pay cost
-    this.applyEffect(game);                     // apply multiplier
-    return true;
+  applyEffect(game) {
+    game.cookie_per_second += this.addPerSecond;
   }
+}
+
+/**
+ * Rebuild derived stats (CPC/CPS) from the items you own.
+ * Call this after loading from storage or after a full reset.
+ */
+export function recomputeFromItems(shop, game) {
+  // Reset to base values before re-applying all owned levels.
+  game.cookie_per_click = 1;
+  game.cookie_per_second = 0;
+
+  // For each item, apply its effect "level" times.
+  shop.forEach((item) => {
+    for (let i = 0; i < item.level; i += 1) {
+      item.applyEffect(game);
+    }
+  });
 }

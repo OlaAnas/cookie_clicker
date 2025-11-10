@@ -4,63 +4,146 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cookie Game</title>
+
   <style>
-    body { background:#000; color:#fff; margin:100px; font-size:larger; }
-    #shop { display:grid; gap:12px; margin-top:24px; }
-    .shop-item { padding:12px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; cursor:pointer; }
-    .shop-item:disabled { opacity:0.5; cursor:not-allowed; }
-    .name { font-weight:700; }
-    .cost, .lvl { opacity:0.85; font-size:0.95em; }
-    button { font-size:1rem; }
+    /* Layout & base */
+    :root {
+      --bg: #000;
+      --panel: #111;
+      --border: #333;
+      --text: #fff;
+      --subtext: #cfcfcf;
+      --accent: #ffd166;
+    }
 
-    .shop-grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-    .shop-item { padding:12px; border-radius:10px; border:1px solid #333; background:#111; color:#fff; cursor:pointer; text-align:left; }
-    .shop-item:disabled { opacity:.5; cursor:not-allowed; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      margin: 64px 24px;
+      font-size: 18px;
+      line-height: 1.4;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    }
 
-    .row { display:flex; align-items:center; gap:10px; }
-    .icon { width:42px; height:42px; object-fit:cover; border-radius:8px; border:1px solid #2a2a2a; background:#191919; }
-    .meta-wrap .name { font-weight:700; }
-    .cost, .lvl, .effect { opacity:.85; font-size:.95em; }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1, h2 {
+      margin: 0 0 12px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .stats {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    /* Cookie button */
     #cookie_button {
-  border:none; background:transparent; padding:0; cursor:pointer;
-}
-#cookie_img {
-  width:160px; height:160px; object-fit:contain; display:block;
-  transition: transform .06s ease;
-  user-select:none; -webkit-user-drag:none;
-}
-#cookie_button:active #cookie_img { transform: scale(0.95); }
-/* optional hover pulse */
-#cookie_button:hover #cookie_img { transform: scale(1.03); }
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+    }
+    #cookie_img {
+      width: 160px; height: 160px;
+      object-fit: contain;
+      display: block;
+      transition: transform .06s ease;
+      user-select: none; -webkit-user-drag: none;
+      filter: drop-shadow(0 4px 24px rgba(255,209,102,0.15));
+    }
+    #cookie_button:active #cookie_img { transform: scale(0.95); }
+    #cookie_button:hover  #cookie_img { transform: scale(1.03); }
+
+    /* Shop grids */
+    .shop-section { margin-top: 28px; }
+    .shop-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+
+    .shop-item {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+    }
+    .shop-item:disabled { opacity: .55; cursor: not-allowed; }
+
+    .row { display: flex; align-items: center; gap: 10px; }
+
+    .icon {
+      width: 42px; height: 42px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
+      background: #191919;
+      flex: 0 0 42px;
+    }
+
+    .meta-wrap .name { font-weight: 700; }
+    .cost, .owned, .effect, .total { font-size: .95em; opacity: .9; }
+
+    .owned { color: var(--subtext); }
+    .effect { color: #ddd; }
+    .total  { color: var(--accent); font-weight: 600; }
+
+    .footer { margin-top: 24px; }
+    #reset_btn {
+      font-size: 1rem;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+    }
+    #reset_btn:hover { filter: brightness(1.1); }
   </style>
 </head>
 <body>
+  <div class="container" role="main" aria-label="Cookie Game">
+    <header>
+      <h1>Cookie Game</h1>
+    </header>
 
-  <div>
-    <button id="cookie_button" aria-label="Click the cookie">
-    <img id="cookie_img" src="img/cookie.png" alt="Cookie" />
-    </button>
-    <p>Total Cookies: <span id="total_cookies">0</span></p>
-    <p>Cookies per Click: <span id="cookie_per_click">1</span></p>
-    <p>Cookies per Second: <span id="cookie_per_second">0</span></p>
+    <section aria-label="Cookie click area">
+      <button id="cookie_button" aria-label="Click the cookie to earn cookies">
+        <img id="cookie_img" src="img/cookie.png" alt="Cookie"/>
+      </button>
+
+      <div class="stats" aria-live="polite">
+        <div>Total Cookies: <span id="total_cookies">0</span></div>
+        <div>Cookies per Click: <span id="cookie_per_click">1</span></div>
+        <div>Cookies per Second: <span id="cookie_per_second">0</span></div>
+      </div>
+    </section>
+
+    <section class="shop-section" aria-label="Upgrades shop">
+      <h2>Upgrades</h2>
+      <div id="shop-upgrades" class="shop-grid"></div>
+    </section>
+
+    <section class="shop-section" aria-label="Auto-Clickers shop">
+      <h2>Auto-Clickers</h2>
+      <div id="shop-autos" class="shop-grid"></div>
+    </section>
+
+    <div class="footer">
+      <button id="reset_btn" aria-label="Reset your progress">Reset Game</button>
+    </div>
   </div>
 
-<section class="shop-section">
-  <h2>Upgrades</h2>
-  <div id="shop-upgrades" class="shop-grid"></div>
-</section>
-
-<section class="shop-section">
-  <h2>Auto-Clickers</h2>
-  <div id="shop-autos" class="shop-grid"></div>
-</section>
-
-  <div style="margin-top:24px">
-    <button id="reset_btn">Reset Game</button>
-  </div>
-
-  <!-- IMPORTANT: use modules -->
+  <!-- Use ES modules entrypoint -->
   <script type="module" src="js/main.js"></script>
-  <!-- If you prefer inline onclick, expose resetGame globally in main.js (see note below) -->
 </body>
 </html>
