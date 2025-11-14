@@ -5,145 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cookie Game</title>
 
-  <style>
-    /* Layout & base */
-    :root {
-      --bg: #000;
-      --panel: #111;
-      --border: #333;
-      --text: #fff;
-      --subtext: #cfcfcf;
-      --accent: #ffd166;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      margin: 64px 24px;
-      font-size: 18px;
-      line-height: 1.4;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    h1, h2 {
-      margin: 0 0 12px;
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-
-    .stats {
-      display: grid;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    /* Cookie button */
-    #cookie_button {
-      border: none;
-      background: transparent;
-      padding: 0;
-      cursor: pointer;
-    }
-    #cookie_img {
-      width: 160px; height: 160px;
-      object-fit: contain;
-      display: block;
-      transition: transform .06s ease;
-      user-select: none; -webkit-user-drag: none;
-      filter: drop-shadow(0 4px 24px rgba(255,209,102,0.15));
-    }
-    #cookie_button:active #cookie_img { transform: scale(0.95); }
-    #cookie_button:hover  #cookie_img { transform: scale(1.03); }
-
-    /* Shop grids */
-    .shop-section { margin-top: 28px; }
-    .shop-grid {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    }
-
-    .shop-item {
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      color: var(--text);
-      cursor: pointer;
-      text-align: left;
-    }
-    .shop-item:disabled { opacity: .55; cursor: not-allowed; }
-
-    .row { display: flex; align-items: center; gap: 10px; }
-
-    .icon {
-      width: 42px; height: 42px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid #2a2a2a;
-      background: #191919;
-      flex: 0 0 42px;
-    }
-
-    .meta-wrap .name { font-weight: 700; }
-    .cost, .owned, .effect, .total { font-size: .95em; opacity: .9; }
-
-    .owned { color: var(--subtext); }
-    .effect { color: #ddd; }
-    .total  { color: var(--accent); font-weight: 600; }
-
-    .footer { margin-top: 24px; }
-    #reset_btn {
-      font-size: 1rem;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      color: var(--text);
-      cursor: pointer;
-    }
-    #reset_btn:hover { filter: brightness(1.1); }
-  </style>
+  <link rel="stylesheet" href="style/main.css" />
 </head>
 <body>
-  <div class="container" role="main" aria-label="Cookie Game">
-    <header>
-      <h1>Cookie Game</h1>
-    </header>
+<div class="frame">
+  <div class="layout-3">
 
-    <section aria-label="Cookie click area">
-      <button id="cookie_button" aria-label="Click the cookie to earn cookies">
-        <img id="cookie_img" src="img/cookie.png" alt="Cookie"/>
-      </button>
+    <!-- BOX 1: Themes + Upgrades -->
+    <aside class="box box-left">
+      <section id="themes-panel" class="panel">
+        <h2 class="title">Cookie Themes</h2>
+        <div id="themes-scroll" class="scroll-area">
+          <div id="theme-grid">
+            <div class="theme-swatch" data-theme="light" title="Light Mode"></div>
+            <div class="theme-swatch" data-theme="dark" title="Dark Mode"></div>
+            <div class="theme-swatch" data-theme="bold" title="Bold Colors"></div>
+            <div class="theme-swatch" data-theme="negative" title="Negative Mode"></div>
+          </div>
 
-      <div class="stats" aria-live="polite">
-        <div>Total Cookies: <span id="total_cookies">0</span></div>
-        <div>Cookies per Click: <span id="cookie_per_click">1</span></div>
-        <div>Cookies per Second: <span id="cookie_per_second">0</span></div>
-      </div>
-    </section>
+        </div>
+      </section>
 
-    <section class="shop-section" aria-label="Upgrades shop">
-      <h2>Upgrades</h2>
-      <div id="shop-upgrades" class="shop-grid"></div>
-    </section>
+      <section id="upgrades-panel" class="panel">
+        <h2 class="title">Upgrades</h2>
+        <!-- IMPORTANT: keep this ID exactly for your JS -->
+        <div id="shop-upgrades" class="scroll-area grid">
+          <!-- JS will render upgrade buttons here -->
+        </div>
+      </section>
+    </aside>
 
-    <section class="shop-section" aria-label="Auto-Clickers shop">
-      <h2>Auto-Clickers</h2>
-      <div id="shop-autos" class="shop-grid"></div>
-    </section>
+    <!-- BOX 2: Cookie info + cookie -->
+    <main class="box box-middle">
+      <section id="cookie-info" class="panel slim">
+        <h2 class="title">Cookie Clicker</h2>
+        <div class="stats">
+          <div>you have  <span id="total_cookies">0</span> cookies in total</div>
+          <div>Cookies per Click: <span id="cookie_per_click">1</span></div>
+          <div>Cookies per Second: <span id="cookie_per_second">0</span></div>
+        </div>
+      </section>
 
-    <div class="footer">
-      <button id="reset_btn" aria-label="Reset your progress">Reset Game</button>
-    </div>
+      <section id="cookie-plate-wrap" class="panel center">
+        <div id="cookie-plate">
+          <button id="cookie_button" aria-label="Click the cookie">
+            <img id="cookie_img" src="img/cookie.png" alt="Cookie">
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- BOX 3: Auto-clickers + Reset -->
+    <aside class="box box-right">
+      <section id="autos-panel" class="panel">
+        <h2 class="title">Auto-Clickers</h2>
+        <!-- IMPORTANT: keep this ID exactly for your JS -->
+        <div id="shop-autos" class="scroll-area grid">
+          <!-- JS will render auto-clicker buttons here -->
+        </div>
+      </section>
+
+      <section id="reset-panel" class="panel slim center">
+        <button id="reset_btn">Reset Game</button>
+      </section>
+    </aside>
+
   </div>
-
+</div>
   <!-- Use ES modules entrypoint -->
   <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/themes.js"></script>
 </body>
 </html>

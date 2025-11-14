@@ -1,0 +1,311 @@
+/* ===========================
+   GLOBAL THEME VARIABLE TEMPLATE
+   (ALL themes must define these in themes.js)
+   =========================== */
+:root {
+  --bg-color: #111111;           /* page background */
+  --frame-bg: #151515;           /* outer frame */
+  --box-bg: #1b1b1b;             /* big boxes (left/middle/right) */
+  --panel-bg: #0f0f0f;           /* inner cards */
+  --shop-bg: #1b1b1b;            /* shop item background */
+  --shop-bg-disabled: #444444;   /* disabled shop items */
+  --border-color: #2a2a2a;
+  --text-color: #ffffff;         /* main text */
+  --muted-text: #aaaaaa;         /* subtle text */
+  --text-strong: #ffffff;        /* headings / titles */
+  --text-muted: #bbbbbb;         /* for costs/lvls */
+  --scrollbar-thumb: #3e3939;    /* scrollbars */
+  --accent-color: #ffcc33;       /* optional highlight/accent */
+
+  /* cookie plate */
+  --plate-d: 260px;
+
+  /* shop item theme-aware mapping */
+  --shop-text-color: var(--text-color);
+  --shop-muted-color: var(--muted-text);
+  --icon-border-color: var(--border-color);
+}
+
+/* ===========================
+   RESET & BODY
+   =========================== */
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+
+body {
+  font: 16px/1.5 system-ui, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ===========================
+   OUTER FRAME & GRID LAYOUT
+   =========================== */
+.frame {
+  width: min(2000px, 96vw);
+  height: calc(100vh - 48px);
+  border: 2px solid var(--border-color);
+  border-radius: 18px;
+  padding: 16px;
+  background: var(--frame-bg);
+  box-shadow: 0 0 20px rgba(0,0,0,.35);
+}
+
+.layout-3 {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 0.85fr 1fr;
+  gap: 16px;
+}
+
+/* ===========================
+   BOXES
+   =========================== */
+.box {
+  background: var(--box-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.box-middle {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* ===========================
+   PANELS
+   =========================== */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.panel.slim {
+  flex: 0 0 auto;
+  margin-top: 100px;
+}
+
+.panel.center {
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-strong);
+}
+
+/* ===========================
+   SCROLL AREAS
+   =========================== */
+.scroll-area {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+  border-radius: 8px;
+}
+
+.scroll-area::-webkit-scrollbar { width: 8px; }
+.scroll-area::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 8px;
+}
+
+.box-left .panel .scroll-area,
+.box-right .panel .scroll-area {
+  height: calc(100% - 36px);
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* ===========================
+   SHOP GRID & ITEMS
+   =========================== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.shop-item {
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--shop-bg);
+  text-align: left;
+  color: var(--shop-text-color);
+}
+
+.shop-item:not(:disabled):hover {
+  transform: translateY(-1px);
+  transition: transform .12s ease;
+}
+
+.shop-item .row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 10px;
+}
+
+.shop-item .icon {
+  width: 44px; height: 44px;
+  border-radius: 8px;
+  border: 1px solid var(--icon-border-color);
+  object-fit: cover;
+}
+
+.shop-item .name {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.shop-item .cost,
+.shop-item .lvl,
+.shop-item .effect {
+  color: var(--text-muted);
+}
+
+.shop-item:disabled {
+  background: var(--shop-bg-disabled);
+  opacity: 0.9;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
+
+.shop-item:disabled .name,
+.shop-item:disabled .cost,
+.shop-item:disabled .lvl,
+.shop-item:disabled .effect {
+  color: var(--muted-text) !important;
+}
+
+/* ===========================
+   COOKIE INFO
+   =========================== */
+#cookie-info .stats {
+  opacity: .9;
+  font-size: .95rem;
+}
+
+#cookie-info.panel {
+  width: 260px;
+  margin-inline: auto;
+  padding: 10px 14px;
+}
+
+/* ===========================
+   COOKIE PLATE
+   =========================== */
+#cookie-plate-wrap.panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+#cookie-plate {
+  width: var(--plate-d);
+  height: var(--plate-d);
+  border-radius: 50%;
+  border: 5px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+#cookie_button {
+  width: 100%; height: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+#cookie_img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: transform .08s ease;
+}
+
+#cookie_button:hover #cookie_img { transform: scale(1.04); }
+#cookie_button:active #cookie_img { transform: scale(.96); }
+
+/* ===========================
+   RESET BUTTON
+   =========================== */
+#reset_btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--box-bg);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+#reset_btn:hover {
+  filter: brightness(1.15);
+}
+
+/* ===========================
+   THEME SWATCHES
+   =========================== */
+#theme-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 28px);
+  gap: 8px;
+  padding: 4px 2px;
+}
+
+.theme-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+
+.theme-swatch:hover { transform: scale(1.12); }
+.theme-swatch.active { outline: 2px solid var(--text-strong); }
+
+.theme-swatch.locked {
+  filter: grayscale(1);
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 1180px) {
+  .layout-3 { grid-template-columns: 300px 1fr 300px; }
+  :root { --plate-d: 240px; }
+}
+
+@media (max-width: 1024px) {
+  .layout-3 { grid-template-columns: 260px 1fr 260px; }
+  :root { --plate-d: 220px; }
+}

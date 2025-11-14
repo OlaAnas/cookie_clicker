@@ -1,5 +1,7 @@
+// ui.js
 import { game, shortNum } from "./state.js";
 import { renderShop } from "./shop.js";
+import { renderThemes } from "./themes.js";
 
 // Cache references to key DOM elements once
 const totalCookiesEl = document.getElementById("total_cookies");
@@ -16,8 +18,11 @@ export function updateUI() {
   if (perClickEl)     perClickEl.textContent     = shortNum(game.cookie_per_click);
   if (perSecondEl)    perSecondEl.textContent    = shortNum(game.cookie_per_second);
 
-  // Also re-render the shop (so costs/availability update)
+  // Re-render shop so costs / disabled-state keep up with cookie count
   renderShop();
+
+  // Re-render themes so newly unlocked themes become clickable
+  renderThemes();
 }
 
 /**

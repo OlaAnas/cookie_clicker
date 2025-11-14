@@ -4,7 +4,7 @@ import { recomputeFromItems } from "./items.js";
 
 /**
  * Save the current game state to localStorage.
- * This includes cookie count and the level ("Owned") of every shop item.
+ * This includes cookie count, shop item levels, and the current theme.
  */
 export function saveGame() {
   const state = {
@@ -20,6 +20,9 @@ export function saveGame() {
       id: item.id,
       level: item.level
     })),
+
+    // Save current theme id so we can restore it later.
+    themeId: game.themeId || "dark",
   };
 
   try {
@@ -45,6 +48,13 @@ export function loadGame() {
     // Restore cookie count
     game.cookie = Number(state.cookie) || 0;
 
+    // Restore theme id (but DO NOT apply it here – main.js will call setTheme)
+    if (typeof state.themeId === "string") {
+      game.themeId = state.themeId;
+    } else {
+      game.themeId = "dark";
+    }
+
     // Restore item levels from save file
     if (Array.isArray(state.shopLevels)) {
       state.shopLevels.forEach(savedItem => {
@@ -56,6 +66,7 @@ export function loadGame() {
     }
 
     // Recompute derived values based on owned items
+    // (cookie_per_click / cookie_per_second)
     recomputeFromItems(shop, game);
   } catch (error) {
     console.error("Save file corrupted — clearing data:", error);
@@ -71,13 +82,16 @@ export function resetGame(updateUI) {
   // Clear localStorage
   localStorage.removeItem(SAVE_KEY);
 
-  // Reset cookies and shop levels
+  // Reset cookies and theme
   game.cookie = 0;
+  game.themeId = "dark";
+
+  // Reset all shop item levels
   shop.forEach(item => {
     item.level = 0;
   });
 
-  // Recalculate base stats (1 per click, 0 per second)
+  // Recalculate base stats (1 per click, 0 per second) from empty shop
   recomputeFromItems(shop, game);
 
   // Re-render UI if a callback was provided

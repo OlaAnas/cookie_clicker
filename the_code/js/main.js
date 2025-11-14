@@ -1,10 +1,12 @@
+// main.js
 import { game } from "./state.js";
 import { updateUI, wireCookieButton } from "./ui.js";
 import { saveGame, loadGame, resetGame } from "./storage.js";
+import { wireThemeClicks, setTheme } from "./themes.js";
 
 // Interval settings (easy to tweak/grade)
-const TICK_MS = 1000;     // add CPS to cookies once per second
-const AUTOSAVE_MS = 5000; // save every 5 seconds (1s is overkill)
+const TICK_MS = 1000;     // add CPS once per second
+const AUTOSAVE_MS = 5000; // save every 5 seconds
 
 // Handle cookie clicks (named for readability)
 function onCookieClick() {
@@ -45,18 +47,21 @@ function init() {
   // 1) Load previous session
   loadGame();
 
-  // 2) Wire UI
+  // 2) Apply saved theme (or fallback to "dark") BEFORE first paint
+  setTheme(game.themeId || "dark");
+
+  // 3) Wire UI
   wireCookieButton(onCookieClick);
   wireResetButton();
+  wireThemeClicks();   // click on theme swatches
 
-  // 3) First paint
-  updateUI(); // (updateUI should call renderShop() inside)
+  // 4) First paint (shows numbers + shop + themes)
+  updateUI();          // updateUI() will call renderShop() + renderThemes()
 
-  // 4) Loops
+  // 5) Loops
   startTickLoop();
   startAutosave();
 }
 
 // Because the script is at the end of <body>, DOM is already ready.
-// Still safe to call directly:
 init();
