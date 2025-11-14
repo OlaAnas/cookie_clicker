@@ -3,6 +3,7 @@ import { game } from "./state.js";
 import { updateUI, wireCookieButton } from "./ui.js";
 import { saveGame, loadGame, resetGame } from "./storage.js";
 import { wireThemeClicks, setTheme } from "./themes.js";
+import { eventLoop } from "./event.js";
 
 // Interval settings (easy to tweak/grade)
 const TICK_MS = 1000;     // add CPS once per second
@@ -10,7 +11,7 @@ const AUTOSAVE_MS = 5000; // save every 5 seconds
 
 // Handle cookie clicks (named for readability)
 function onCookieClick() {
-  game.cookie += game.cookie_per_click;
+  game.cookie += game.cookie_per_click * (game.clickMultiplier || 1);
   updateUI();
   saveGame();
 }
@@ -27,7 +28,10 @@ function wireResetButton() {
 // Start the CPS tick loop
 function startTickLoop() {
   setInterval(function tick() {
-    game.cookie += game.cookie_per_second;
+    const cps = game.cookie_per_second * (game.cpsBoost || 1);
+    game.cookie += cps;
+
+    eventLoop();
     updateUI();
   }, TICK_MS);
 }

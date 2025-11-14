@@ -1,41 +1,63 @@
 // themes.js
 import { game } from "./state.js";
+import { saveGame } from "./storage.js";
 
-/**
- * Theme class:
- * - id: internal name
- * - name: label shown in UI
- * - vars: CSS variable values (keys without the leading "--")
- * - cookieImg: path to cookie image for this theme
- * - unlockAt: min cookies required to use this theme
- */
 class Theme {
   constructor({ id, name, vars, cookieImg, unlockAt = 0 }) {
     this.id = id;
     this.name = name;
-    this.vars = vars;
-    this.cookieImg = cookieImg;
-    this.unlockAt = unlockAt;
+    this.vars = vars;           // { "bg-color": "#...", "panel-bg": "#...", ... }
+    this.cookieImg = cookieImg; // "img/cookie_light.png" etc.
+    this.unlockAt = unlockAt;   // cookies required to unlock
   }
 
+  /**
+   * A theme is unlocked if:
+   *  - it's in game.unlockedThemes, OR
+   *  - unlockAt === 0, OR
+   *  - cookieCount >= unlockAt (and then we permanently add it to unlockedThemes)
+   */
   isUnlocked(cookieCount) {
-    return cookieCount >= this.unlockAt;
+    // make sure the structure exists
+    if (!game.unlockedThemes) {
+      game.unlockedThemes = { light: true, dark: true };
+    }
+
+    // already unlocked in save
+    if (game.unlockedThemes[this.id]) {
+      return true;
+    }
+
+    // themes with unlockAt 0 are always unlocked
+    if (this.unlockAt === 0) {
+      game.unlockedThemes[this.id] = true;
+      saveGame();
+      return true;
+    }
+
+    // newly unlocked because we reached required cookies
+    if (cookieCount >= this.unlockAt) {
+      game.unlockedThemes[this.id] = true;
+      saveGame();
+      return true;
+    }
+
+    // still locked
+    return false;
   }
 
   apply() {
     const root = document.documentElement;
 
-    // Apply all CSS variables (we add the leading `--` here)
+    // apply all CSS variables
     Object.entries(this.vars).forEach(([key, value]) => {
       root.style.setProperty(`--${key}`, value);
     });
 
-    // Swap cookie image if provided
+    // swap cookie image if provided
     if (this.cookieImg) {
       const img = document.getElementById("cookie_img");
-      if (img) {
-        img.src = this.cookieImg;
-      }
+      if (img) img.src = this.cookieImg;
     }
   }
 }
@@ -47,29 +69,32 @@ export const THEMES = [
     id: "light",
     name: "Warm Light",
     unlockAt: 0,
-    cookieImg: "img/light-theme.png", // placeholder
+    cookieImg: "img/light-theme.png",
     vars: {
       /* ==== Backgrounds ==== */
       "bg-color":        "#FFF9EF",   // soft cream (main background)
       "frame-bg":        "#FFEFD4",   // warm beige frame
       "box-bg":          "#FFE8C7",   // paige / soft vanilla box
       "panel-bg":        "#FFF3DD",   // butter-cream inner panels
+
       /* ==== Shop items ==== */
       "shop-bg":             "#FFE3BB",   // warm beige for shop cards
       "shop-bg-disabled":    "#EED5A6",   // darker beige (NOT grey)
+
       /* ==== Borders & Lines ==== */
       "border-color":    "#7A4A1A",   // real chocolate brown
       "scrollbar-thumb": "#D6B48A",   // soft toasted beige
+
       /* ==== Text ==== */
       "text-color":      "#4F2D12",   // readable warm brown
       "muted-text":      "#A37544",   // caramel (for cost / lvl)
       "text-strong":     "#3E200D",   // darker brown for titles
       "text-muted":      "#9B7043",   // supporting text
-      /* ==== Accent (sprinkles hint) ==== */
-      "accent-color":    "#FFF9EF"    // light sprinkle pink (used VERY lightly)
 
+      /* ==== Accent ==== */
+      "accent-color":    "#FFF9EF"
     }
-    }),
+  }),
 
   new Theme({
     id: "dark",
@@ -92,147 +117,192 @@ export const THEMES = [
       "scrollbar-thumb": "#5E3C2B",   // dark caramel
 
       /* ==== Text ==== */
-      "text-color":      "#F4E2C6",   // ✨ light paige (VERY readable)
+      "text-color":      "#F4E2C6",   // light paige (VERY readable)
       "muted-text":      "#C7AB8F",   // softer light paige
       "text-strong":     "#FFEBD2",   // brightest text for titles
       "text-muted":      "#CBB49B",   // supporting caramel beige
 
-      /* ==== Accent (hot pink flavour) ==== */
-      "accent-color":    "#0C0908"    // hot pink (small UI hints)
+      /* ==== Accent ==== */
+      "accent-color":    "#0C0908"
     }
   }),
 
   new Theme({
     id: "boldCandy",
     name: "Bold Candy",
-    unlockAt: 0,   // always available
-    cookieImg: "img/pitbull-cookie.png",  // placeholder until we generate the cookie
-
+    unlockAt: 1_000,
+    cookieImg: "img/pitbull-cookie.png",
     vars: {
       /* ===== BACKGROUNDS ===== */
-      "bg-color":        "#FFE600",   // ⚡ neon yellow (outer background)
-      "frame-bg":        "#FF6A00",   // 💗 hot pink (inner frame)
-      "box-bg":          "#005CFF",   // 💙 electric blue boxes
-      "panel-bg":        "#FF008A",   // deeper electric blue inside
+      "bg-color":        "#FFE600",   // neon yellow (outer background)
+      "frame-bg":        "#FF6A00",   // hot orange frame
+      "box-bg":          "#005CFF",   // electric blue boxes
+      "panel-bg":        "#FF008A",   // hot pink panels
 
       /* ===== SHOP BUTTONS ===== */
-      "shop-bg":             "#FF6A00",  // bright yellow enabled
-      "shop-bg-disabled":    "#3AFF00",  // neon green disabled (visible af)
+      "shop-bg":             "#FFE600",  // bright yellow enabled
+      "shop-bg-disabled":    "#3AFF00",  // neon green disabled
 
       /* ===== BORDERS ===== */
-      "border-color":    "#FF6A00",   // 🔥 strong orange (contrast)
-      "scrollbar-thumb": "#FF6A00",   // same orange for unity
+      "border-color":    "#FF6A00",   // strong orange
+      "scrollbar-thumb": "#FF6A00",
 
       /* ===== TEXT ===== */
-      "text-color":      "#FFFFFF",   // white (best for neon combos)
-      "muted-text":      "#FCD9FF",   // soft pinkish-white
-      "text-strong":     "#FFFFFF",   // strong readable white
-      "text-muted":      "#F7E3FF",   // subtle pastel for details
+      "text-color":      "#FFFFFF",
+      "muted-text":      "#FCD9FF",
+      "text-strong":     "#FFFFFF",
+      "text-muted":      "#F7E3FF",
 
       /* ===== ACCENT ===== */
-      "accent-color":    "#FF008A"    // hot pink for highlights
+      "accent-color":    "#FF008A"
     }
   }),
+
   new Theme({
     id: "invert",
     name: "Negative",
-    unlockAt: 0,
+    unlockAt: 5_000,
     cookieImg: "img/negative-cookie.png",
     vars: {
-        "bg-color": "#4b18a4ff",           // deep dark blue background
-        "frame-bg": "#9FF5D3",          // muted purple frame
-        "box-bg": "#241A10",            // chocolate brown box background
-        "panel-bg": "#2E255E",          // deeper royal-purple for panels
-        "shop-bg": "#2E255E",           // same as panel (consistent)
-        "shop-bg-disabled": "#5B4A2A",  // muted brown-yellow (readable)
-        "text-color": "#FDF496",        // warm yellow for maximum readability
-        "shop-text-color": "#FDF496",   // same as text-color
-        "muted-text": "#9FF5D3",        // mint green highlights
-        "border-color": "#FDF496",      // vibrant purple border
-        "icon-border-color": "#6E45CF", // same as border
-        "scrollbar-thumb": "#FDF496",   // purple scrollbar
-        "accent-color": "#4b18a4ff"       // mint green accent pop
+      "bg-color":          "#4B18A4",   // deep violet
+      "frame-bg":          "#9FF5D3",   // minty frame
+      "box-bg":            "#241A10",   // chocolate brown
+      "panel-bg":          "#2E255E",   // royal purple
+      "shop-bg":           "#2E255E",
+      "shop-bg-disabled":  "#5B4A2A",
+
+      "text-color":        "#FDF496",   // warm yellow
+      "muted-text":        "#9FF5D3",   // mint green
+      "border-color":      "#FDF496",
+      "scrollbar-thumb":   "#FDF496",
+      "accent-color":      "#5B4A2A"
     }
   }),
 
-  // ---- locked themes (examples) ----
   new Theme({
     id: "zombie",
     name: "Zombie Mode",
-    unlockAt: 0,           // needs 5K cookies
-    cookieImg: "img/cookie_zombie.png",
+    unlockAt: 10_000,
+    cookieImg: "img/zombie-cookie.png",
     vars: {
-      "bg-color": "#1C1F1A",          // dark moss background
-      "frame-bg": "#2A2E25",         // deeper swamp green-gray
-      "box-bg": "#3F3F3F",           // concrete panel
-      "panel-bg": "#2E3A2C",         // dirty green-ish panel
-      "shop-bg": "#4A7A42",          // rotten green
-      "shop-bg-disabled": "#6B6B6B", // dusty cement disabled state
-      "text-color": "#D3C760",       // sick yellow
-      "muted-text": "#A8E57E",       // pale infected highlight
-      "border-color": "#2E5D34",     // swamp dark green
-      "scrollbar-thumb": "#6B6B6B",  // cement gray
-      "shop-text-color": "#D3C760",  // readable sick yellow
-      "shop-muted-color": "#A8E57E", // pale green
-      "accent-color": "#5D4A6A"      // bruised purple (optional)
+      "bg-color":          "#1C1F1A",   // dark moss
+      "frame-bg":          "#2A2E25",
+      "box-bg":            "#3F3F3F",   // concrete
+      "panel-bg":          "#283D24",   // dirty green-ish
+      "shop-bg":           "#930717",   // bloody accent
+      "shop-bg-disabled":  "#6B6B6B",
+
+      "text-color":        "#D3C760",   // sick yellow
+      "muted-text":        "#A8E57E",   // pale infected green
+      "border-color":      "#2E5D34",   // swamp green
+      "scrollbar-thumb":   "#6B6B6B",
+      "accent-color":      "#2E5D34"
     }
   }),
 
   new Theme({
-    id: "win7",
-    name: "Purple Place",
-    unlockAt: 0,
-    cookieImg: "img/cookie_win7.png",
+    id: "halloween",
+    name: "Halloween",
+    unlockAt: 15_000,
+    cookieImg: "img/halloween-cookie.png",
     vars: {
-      "bg-color": "#140326",
-      "panel-bg": "#2c0a57",
-      "shop-bg": "#3a1172",
-      "border-color": "#6c35c7",
-      "text-color": "#f3e5ff",
-      "muted-text": "#c6a4ff",
-      "accent-color": "#ffb347"
+      "bg-color":          "#0A0610",  // deep midnight
+      "frame-bg":          "#1A0F24",
+      "box-bg":            "#1A0F24",
+      "panel-bg":          "#2A1638",
+      "shop-bg":           "#26102E",
+      "shop-bg-disabled":  "#3D2C42",
+
+      "border-color":      "#FF7A1C",  // pumpkin orange
+      "text-color":        "#FFE7C5",  // warm cream
+      "muted-text":        "#D9A57B",
+      "accent-color":      "#FF9B36",
+      "scrollbar-thumb":   "#FF7A1C",
+      "text-strong":       "#FFFFFF",
+      "icon-border-color": "#FF7A1C"
     }
   }),
-
-  // later you can add: crumble cookie, demon, hunter, halloween, christmas...
 ];
 
 // ---- helpers ----
 
-// apply theme by id (does NOT save by itself to avoid circular imports)
 export function setTheme(id) {
-  const theme = THEMES.find(t => t.id === id) ?? THEMES[0];
+  const fallback = THEMES[0];
+  const theme = THEMES.find(t => t.id === id) || fallback;
+
   game.themeId = theme.id;
   theme.apply();
+  saveGame();
 }
 
-// render swatches in #theme-grid
+/**
+ * Draw theme buttons and show next unlock requirement
+ */
 export function renderThemes() {
   const grid = document.getElementById("theme-grid");
   if (!grid) return;
 
+  // make sure unlockedThemes exists
+  if (!game.unlockedThemes) {
+    game.unlockedThemes = { light: true, dark: true };
+  }
+
   grid.innerHTML = "";
+
+  let nextLocked = null;
+
   THEMES.forEach(theme => {
     const btn = document.createElement("button");
     btn.className = "theme-swatch";
     btn.dataset.themeId = theme.id;
 
-    // use accent or panel color as preview
     const previewColor =
-      theme.vars["accent-color"] || theme.vars["panel-bg"] || "#888";
+      theme.vars["accent-color"] ||
+      theme.vars["panel-bg"] ||
+      theme.vars["box-bg"] ||
+      "#888";
+
     btn.style.background = previewColor;
 
     const unlocked = theme.isUnlocked(game.cookie);
-    btn.disabled = !unlocked;
-    btn.title = unlocked
-      ? theme.name
-      : `${theme.name} (unlocks at ${theme.unlockAt.toLocaleString()} cookies)`;
+
+    if (!unlocked) {
+      btn.disabled = true;
+      btn.classList.add("locked");
+      btn.title = `${theme.name} — unlocks at ${theme.unlockAt.toLocaleString()} cookies`;
+
+      // track the *closest* future unlock
+      if (!nextLocked || theme.unlockAt < nextLocked.unlockAt) {
+        nextLocked = theme;
+      }
+    } else {
+      btn.disabled = false;
+      btn.title = theme.name;
+    }
+
+    if (theme.id === game.themeId) {
+      btn.classList.add("active");
+    }
 
     grid.appendChild(btn);
   });
+
+  // Small text under the swatches: “Next theme unlock…”
+  const hint = document.getElementById("theme-locked-hint");
+  if (hint) {
+    if (nextLocked) {
+      hint.textContent =
+        `Next theme unlock: ${nextLocked.name} at ` +
+        `${nextLocked.unlockAt.toLocaleString()} cookies.`;
+    } else {
+      hint.textContent = "All special themes are unlocked 🎉";
+    }
+  }
 }
 
-// one listener for all swatches
+/**
+ * Single click handler for all swatches
+ */
 export function wireThemeClicks() {
   const grid = document.getElementById("theme-grid");
   if (!grid) return;
@@ -242,9 +312,12 @@ export function wireThemeClicks() {
     if (!btn) return;
 
     const theme = THEMES.find(t => t.id === btn.dataset.themeId);
-    if (!theme || !theme.isUnlocked(game.cookie)) return;
+    if (!theme) return;
+
+    // Only allow clicking if it's really unlocked (based on saved state)
+    if (!theme.isUnlocked(game.cookie)) return;
 
     setTheme(theme.id);
-    renderThemes(); // refresh locked/unlocked states
+    renderThemes(); // refresh active/locked states + next-unlock text
   });
 }

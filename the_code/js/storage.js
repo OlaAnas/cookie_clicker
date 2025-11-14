@@ -1,6 +1,14 @@
+// storage.js
 import { SAVE_KEY, game } from "./state.js";
 import { shop } from "./shop.js";
 import { recomputeFromItems } from "./items.js";
+import { setTheme } from "./themes.js";
+
+// Which themes are always unlocked in a fresh game
+const DEFAULT_UNLOCKED_THEMES = {
+  light: true,
+  dark: true,
+};
 
 /**
  * Save the current game state to localStorage.
@@ -8,21 +16,20 @@ import { recomputeFromItems } from "./items.js";
  */
 export function saveGame() {
   const state = {
+    // core numbers
     cookie: game.cookie,
-
-    // These are derived values (recomputed from items),
-    // but we store them anyway for redundancy.
     cookie_per_click: game.cookie_per_click,
     cookie_per_second: game.cookie_per_second,
 
-    // Store each shop item's id and level.
+    // shop item levels
     shopLevels: shop.map(item => ({
       id: item.id,
-      level: item.level
+      level: item.level,
     })),
 
-    // Save current theme id so we can restore it later.
-    themeId: game.themeId || "dark",
+    // theme info
+    themeId: game.themeId,
+    unlockedThemes: game.unlockedThemes,
   };
 
   try {
@@ -39,23 +46,36 @@ export function saveGame() {
 export function loadGame() {
   const saved = localStorage.getItem(SAVE_KEY);
   if (!saved) {
-    return; // no save yet
+    // fresh start: base values + default unlocked themes
+    game.cookie = 0;
+    game.cookie_per_click = 1;
+    game.cookie_per_second = 0;
+    game.themeId = "dark";
+    game.unlockedThemes = { ...DEFAULT_UNLOCKED_THEMES };
+    return;
   }
 
   try {
     const state = JSON.parse(saved);
 
-    // Restore cookie count
+    // --- cookies / base numbers ---
     game.cookie = Number(state.cookie) || 0;
 
-    // Restore theme id (but DO NOT apply it here – main.js will call setTheme)
+    // theme id (we only store it here; main.js actually applies CSS)
     if (typeof state.themeId === "string") {
       game.themeId = state.themeId;
     } else {
       game.themeId = "dark";
     }
 
-    // Restore item levels from save file
+    // unlocked themes: either from save, or default collection
+    if (state.unlockedThemes && typeof state.unlockedThemes === "object") {
+      game.unlockedThemes = state.unlockedThemes;
+    } else {
+      game.unlockedThemes = { ...DEFAULT_UNLOCKED_THEMES };
+    }
+
+    // restore shop item levels
     if (Array.isArray(state.shopLevels)) {
       state.shopLevels.forEach(savedItem => {
         const shopItem = shop.find(i => i.id === savedItem.id);
@@ -65,12 +85,18 @@ export function loadGame() {
       });
     }
 
-    // Recompute derived values based on owned items
-    // (cookie_per_click / cookie_per_second)
+    // recompute derived values based on owned items
     recomputeFromItems(shop, game);
   } catch (error) {
     console.error("Save file corrupted — clearing data:", error);
     localStorage.removeItem(SAVE_KEY);
+
+    // fall back to a clean base state
+    game.cookie = 0;
+    game.cookie_per_click = 1;
+    game.cookie_per_second = 0;
+    game.themeId = "dark";
+    game.unlockedThemes = { ...DEFAULT_UNLOCKED_THEMES };
   }
 }
 
@@ -82,17 +108,25 @@ export function resetGame(updateUI) {
   // Clear localStorage
   localStorage.removeItem(SAVE_KEY);
 
-  // Reset cookies and theme
+  // Reset core numbers
   game.cookie = 0;
+  game.cookie_per_click = 1;
+  game.cookie_per_second = 0;
+
+  // Reset theme state
   game.themeId = "dark";
+  game.unlockedThemes = { ...DEFAULT_UNLOCKED_THEMES };
 
   // Reset all shop item levels
   shop.forEach(item => {
     item.level = 0;
   });
 
-  // Recalculate base stats (1 per click, 0 per second) from empty shop
+  // Recalculate base stats (from empty shop)
   recomputeFromItems(shop, game);
+
+  // Apply default theme visually
+  setTheme("dark");
 
   // Re-render UI if a callback was provided
   if (typeof updateUI === "function") {

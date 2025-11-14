@@ -1,50 +1,42 @@
-// ============================
-// Small Game Class (Light OOP)
-// ============================
+// state.js
 
 export class Game {
   constructor() {
-    /** Total cookies owned */
+    /** Total number of cookies currently owned */
     this.cookie = 0;
 
-    /** Cookies gained by clicking */
+    /** Cookies gained per click */
     this.cookie_per_click = 1;
 
     /** Cookies gained automatically per second */
     this.cookie_per_second = 0;
 
-    /** Which theme is active */
+    this.clickMultiplier= 1,
+    this.cpsBoost= 1,
+
+    /** Current theme id */
     this.themeId = "dark";
-  }
 
-  // ===== Optional Helper Methods =====
-  addCookies(n) {
-    this.cookie += n;
-  }
+  
+    this.unlockedThemes = {
+      light: true,
+      dark: true,
 
-  addCPS() {
-    this.cookie += this.cookie_per_second;
+    };
   }
 }
 
-// Create ONE global instance for the whole app
+// Create a single shared instance
 export const game = new Game();
 
-
-// ============================
-// Helper: Short Number Format
-// ============================
-
+/**
+ * Format large numbers into short readable strings.
+ */
 export function shortNum(num) {
   if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + "B";
   if (num >= 1_000_000)     return (num / 1_000_000).toFixed(2) + "M";
   if (num >= 1_000)         return (num / 1_000).toFixed(1) + "K";
   return num.toString();
 }
-
-
-// ============================
-// LocalStorage Key
-// ============================
 
 export const SAVE_KEY = "cookieClickerSave_v1";

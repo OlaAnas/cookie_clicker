@@ -34,6 +34,35 @@ export const shop = [
 ];
 
 // -----------------------------------------------------------------------------
+// 1.5) Icon mapping for Bootstrap Icons
+// -----------------------------------------------------------------------------
+const iconClassMap = {
+  // Click upgrades
+  click1:  "bi-hand-index-fill",   // Golden Gloves
+  click2:  "bi-stars",             // Magic Sugar
+  click3:  "bi-journal",           // Recipe Book
+  click4:  "bi-alarm",             // Oven Timer
+  click5:  "bi-fire",              // Industrial Ovens
+  click6:  "bi-cloud-rain-heavy",  // Butterstorm
+  click7:  "bi-award",             // Master Chef Medal
+  click8:  "bi-gem",               // Cookie Crown
+  click9:  "bi-lightning-charge",  // Quantum Mixer
+  click10: "bi-shield-shaded",     // Singularity
+
+  // Auto items
+  auto1:  "bi-person",             // Mom
+  auto2:  "bi-person-hearts",      // Grandma
+  auto3:  "bi-house-door",         // Kitchen
+  auto4:  "bi-egg-fried",          // Chef
+  auto5:  "bi-shop",               // Restaurant
+  auto6:  "bi-basket",             // Bakery
+  auto7:  "bi-building-gear",      // Factory
+  auto8:  "bi-buildings",          // Cookie City
+  auto9:  "bi-globe-americas",     // Cookie Land
+  auto10: "bi-stars"               // Cookie Universe
+};
+
+// -----------------------------------------------------------------------------
 // 2) Buy helper (clear + readable)
 // -----------------------------------------------------------------------------
 function handleBuy(item) {
@@ -55,7 +84,8 @@ function renderList(containerId, items) {
 
   items.forEach((item) => {
     const button = document.createElement("button");
-    button.className = "shop-item";
+    // ✅ Bootstrap button + your own class
+    button.className = "shop-item btn btn-outline-light w-100";
 
     // enable/disable based on affordability
     const affordable = item.canAfford(game.cookie);
@@ -63,10 +93,10 @@ function renderList(containerId, items) {
 
     // Display fields
     const costLabel = `Cost: ${shortNum(item.cost)}`;
-    const owned = item.level; // amount the player owns
+    const owned     = item.level; // amount the player owns
 
     let effectRow = "";
-    let totalRow = "";
+    let totalRow  = "";
 
     if (item instanceof AutoItem) {
       // Auto-clicker
@@ -78,9 +108,12 @@ function renderList(containerId, items) {
       totalRow  = `Total: +${shortNum(item.addPerClick * owned)} per click`;
     }
 
+    // Pick Bootstrap icon class based on id
+    const iconClass = iconClassMap[item.id] || "bi-circle-fill";
+
     button.innerHTML = `
       <div class="row">
-        <img class="icon" src="${item.icon}" alt="${item.name} icon" loading="lazy" />
+        <i class="bi ${iconClass} icon"></i>
         <div class="meta-wrap">
           <div class="name">${item.name}</div>
           <div class="cost">${costLabel}</div>
@@ -100,6 +133,9 @@ function renderList(containerId, items) {
   });
 }
 
+// -----------------------------------------------------------------------------
+// 4) Public render function (called from updateUI)
+// -----------------------------------------------------------------------------
 export function renderShop() {
   const upgrades = shop.filter(i => !(i instanceof AutoItem));
   const autos    = shop.filter(i =>  (i instanceof AutoItem));

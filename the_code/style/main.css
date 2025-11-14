@@ -40,7 +40,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
 }
 
 /* ===========================
@@ -210,7 +209,8 @@ body {
   width: 260px;
   margin-inline: auto;
   padding: 10px 14px;
-}
+
+} 
 
 /* ===========================
    COOKIE PLATE
@@ -296,6 +296,57 @@ body {
   opacity: .45;
   cursor: not-allowed;
 }
+.theme-hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--muted-text);
+}
+
+/* little lock overlay so it’s obvious it’s locked */
+.theme-swatch.locked::after {
+  content: "🔒";
+  font-size: 0.75rem;
+  display: block;
+  text-align: center;
+  line-height: 28px;
+  color: var(--text-color);
+}
+
+
+
+
+
+
+.golden-popup {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4rem;
+  cursor: pointer;
+  text-shadow: 0 0 12px gold;
+  animation: sparkle 0.8s infinite alternate;
+}
+
+@keyframes sparkle {
+  from { transform: translateX(-50%) scale(1); }
+  to   { transform: translateX(-50%) scale(1.2); }
+}
+
+body.fever-mode {
+  animation: feverPulse 0.5s infinite alternate;
+}
+
+@keyframes feverPulse {
+  from { filter: brightness(1); }
+  to   { filter: brightness(1.3); }
+}
+
+#cookie-info,
+#cookie-info * {
+  color: var(--text-color) !important;
+}
+
 
 /* ===========================
    RESPONSIVE
